@@ -3820,42 +3820,73 @@
             }));
         }
     }), 0);
-    let furniture = document.querySelectorAll(".furniture__item");
-    furniture.forEach((furniture => {
-        furniture.addEventListener("click", (function(e) {
-            furniture.classList.toggle("_open");
+    window.addEventListener("load", documentActions);
+    function documentActions() {
+        let furniture = document.querySelectorAll(".furniture__item");
+        furniture.forEach((furniture => {
+            furniture.addEventListener("click", (function(e) {
+                furniture.classList.toggle("_open");
+            }));
         }));
-    }));
-    let gallery = document.querySelectorAll(".item-gallery");
-    gallery.forEach((gallery => {
-        gallery.addEventListener("click", (function(e) {
-            gallery.classList.toggle("_open");
+        let gallery = document.querySelectorAll(".item-gallery");
+        gallery.forEach((gallery => {
+            gallery.addEventListener("click", (function(e) {
+                gallery.classList.toggle("_open");
+            }));
         }));
-    }));
-    const animItems = document.querySelectorAll("._anim-items");
-    if (animItems.length > 0) {
-        window.addEventListener("scroll", animOnScroll);
-        function animOnScroll() {
-            for (let index = 0; index < animItems.length; index++) {
-                const animItem = animItems[index];
-                const animItemHeight = animItem.offsetHeight;
-                const animItemOffset = offset(animItem).top;
-                const animStart = 4;
-                let animItemPoint = window.innerHeight - animItemHeight / animStart;
-                if (animItemHeight > window.innerHeight) animItemPoint = window.innerHeight - window.innerHeight / animStart;
-                if (pageYOffset > animItemOffset - animItemPoint && pageYOffset < animItemOffset + animItemHeight) animItem.classList.add("_active"); else if (!animItem.classList.contains("_anim-no-hide")) animItem.classList.remove("_active");
+        const animItems = document.querySelectorAll("._anim-items");
+        if (animItems.length > 0) {
+            window.addEventListener("scroll", animOnScroll);
+            function animOnScroll() {
+                for (let index = 0; index < animItems.length; index++) {
+                    const animItem = animItems[index];
+                    const animItemHeight = animItem.offsetHeight;
+                    const animItemOffset = offset(animItem).top;
+                    const animStart = 4;
+                    let animItemPoint = window.innerHeight - animItemHeight / animStart;
+                    if (animItemHeight > window.innerHeight) animItemPoint = window.innerHeight - window.innerHeight / animStart;
+                    if (pageYOffset > animItemOffset - animItemPoint && pageYOffset < animItemOffset + animItemHeight) animItem.classList.add("_active"); else if (!animItem.classList.contains("_anim-no-hide")) animItem.classList.remove("_active");
+                }
             }
+            function offset(el) {
+                const rect = el.getBoundingClientRect(), scrollLeft = window.pageXOffset || document.documentElement.scrollLeft, scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                return {
+                    top: rect.top + scrollTop,
+                    left: rect.left + scrollLeft
+                };
+            }
+            setTimeout((() => {
+                animOnScroll();
+            }), 300);
         }
-        function offset(el) {
-            const rect = el.getBoundingClientRect(), scrollLeft = window.pageXOffset || document.documentElement.scrollLeft, scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            return {
-                top: rect.top + scrollTop,
-                left: rect.left + scrollLeft
-            };
-        }
-        setTimeout((() => {
-            animOnScroll();
-        }), 300);
+        const cart = document.querySelector(".header__cart");
+        const cartValue = document.querySelector(".header__cart-number span");
+        const speedAnimation = 1e3;
+        document.addEventListener("click", (function(e) {
+            const targetElement = e.target;
+            if (targetElement.closest(".item-product__cart")) {
+                const productSlide = targetElement.closest(".products__item");
+                const productImage = productSlide.querySelector(".item-product__picture");
+                const productImageFly = productImage.cloneNode(true);
+                const cartPos = {
+                    left: cart.getBoundingClientRect().left,
+                    top: cart.getBoundingClientRect().top
+                };
+                productImageFly.style.cssText = `\n\t\t\t\tposition:fixed;\n\t\t\t\tleft:${productImage.getBoundingClientRect().left}px;\n\t\t\t\ttop:${productImage.getBoundingClientRect().top}px;\n\t\t\t\twidth: ${productImage.offsetWidth}px;\n\t\t\t\theight: ${productImage.offsetHeight}px;\n\t\t\t\ttransition:all ${speedAnimation}ms ease;\n\t\t\t`;
+                document.body.append(productImageFly);
+                setTimeout((() => {
+                    productImageFly.style.left = `${cartPos.left}px`;
+                    productImageFly.style.top = `${cartPos.top}px`;
+                    productImageFly.style.width = `0px`;
+                    productImageFly.style.height = `0px`;
+                    productImageFly.style.opacity = `0.5`;
+                }), 0);
+                setTimeout((() => {
+                    cartValue.innerHTML = ++cartValue.innerHTML;
+                    productImageFly.remove();
+                }), speedAnimation);
+            }
+        }));
     }
     window["FLS"] = true;
     isWebp();
